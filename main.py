@@ -4,6 +4,8 @@ import random
 
 ''' Colors '''
 background = (200, 255, 255)
+black = (0, 0, 0)
+green = (0, 255, 0)
 
 ''' Initialize the game window and clock '''
 window = display.set_mode((600, 500))
@@ -22,7 +24,15 @@ def reset_ball_speed():
     ball.dy = random.choice([-3, 3])  # Randomly set initial vertical direction
 
 reset_ball_speed()
-game = True
+
+''' Game Variables '''
+game = True 
+score_left = 0
+score_right = 0
+winning_score = 3
+font.init()
+font_style = font.Font(None, 50)
+
 ''' Game Loop '''
 while game:
     for e in event.get():
@@ -31,6 +41,25 @@ while game:
 
     # Fill background each frame
     window.fill(background)
+
+    # Display scores
+    score_text_left = font_style.render(f"{score_left}", True, black)
+    score_text_right = font_style.render(f"{score_right}", True, black)
+    window.blit(score_text_left, (150, 20))
+    window.blit(score_text_right, (450, 20))
+
+    # Check if either player won
+    if score_left >= winning_score:
+        win_text = font_style.render("Left Player Wins!", True, green)
+        window.blit(win_text, (180, 250))
+        display.update()
+        time.delay(2000)
+
+    if score_right >= winning_score:
+        win_text = font_style.render("Right Player Wins!", True, green)
+        window.blit(win_text, (180, 250))
+        display.update()
+        time.delay(2000)
 
     # Update player positions
     platform_left.update_left()
@@ -49,8 +78,14 @@ while game:
         ball.dx = -ball.dx
         ball.dx *= 1.1
         ball.dy *= 1.1
+    
+    if ball.rect.x < 0:
+        score_right += 1
+        ball.rect.x, ball.rect.y = 350, 250
+        reset_ball_speed()
 
-    if ball.rect.x < 0 or ball.rect.x > 600:
+    if ball.rect.x > 600:
+        score_left += 1
         ball.rect.x, ball.rect.y = 350, 250 
         reset_ball_speed()
 
